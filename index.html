@@ -1,0 +1,524 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Paste your public Google OAuth Web client ID here before publishing. Never use a client secret. -->
+<meta name="google-client-id" content="">
+<title>Readwell · English text to speech</title>
+<style>
+:root{color-scheme:light;--bg:#f5f4f0;--paper:#fff;--ink:#252c29;--muted:#65716b;--line:#dce2dd;--accent:#276b54;--soft:#eaf3ed}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}main{max-width:1120px;margin:auto;padding:46px 24px 28px}header{margin-bottom:28px}.brand{color:var(--accent);font-size:13px;font-weight:750;letter-spacing:.14em;text-transform:uppercase}h1{font-size:clamp(30px,5vw,44px);line-height:1.15;letter-spacing:-.045em;margin:12px 0}p{margin:8px 0;color:var(--muted)}.workspace{display:grid;grid-template-columns:1fr 1fr;gap:20px}.card{background:var(--paper);border:1px solid var(--line);border-radius:18px;padding:24px;min-width:0}.card-title{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px}h2,label.title{font-size:16px;font-weight:650;margin:0}.hint{font-size:13px;color:var(--muted)}textarea{width:100%;height:330px;resize:vertical;min-height:180px;border:1px solid var(--line);border-radius:10px;padding:16px;font:inherit;line-height:1.7;color:var(--ink);background:#fcfcfa}textarea::placeholder{color:#7a847e}.reader{height:330px;overflow:auto;scrollbar-gutter:stable;line-height:1.9;padding:4px 8px 12px 0;overflow-wrap:anywhere}.empty{padding:48px 18px;text-align:center;color:var(--muted)}.sentence{display:inline;border:0;background:transparent;color:inherit;font:inherit;text-align:left;padding:3px 4px;margin:0 0 5px;border-radius:5px;cursor:pointer;white-space:pre-wrap}.sentence:hover{background:#f0f3ef}.sentence[aria-current="true"]{background:var(--soft);color:#174b38;box-shadow:inset 0 -2px var(--accent)}.settings{display:grid;grid-template-columns:minmax(0,1fr) 240px;gap:28px;margin-top:20px;padding:22px 24px}.field-label{display:flex;justify-content:space-between;font-size:14px;font-weight:650;margin-bottom:8px}.voice-row{display:flex;gap:10px}select{min-width:0;width:100%;border:1px solid var(--line);border-radius:9px;background:white;padding:10px;color:var(--ink);font:inherit;font-size:14px}button.control{border:1px solid var(--line);border-radius:9px;background:white;color:var(--ink);padding:10px 15px;font:inherit;font-size:14px;font-weight:600;cursor:pointer;white-space:nowrap}button.control:hover{background:var(--soft);border-color:#a4beb0}button.primary{background:var(--accent);color:white;border-color:var(--accent);min-width:100px}button.primary:hover{background:#1d5642;color:white}button:disabled,select:disabled,input:disabled{opacity:.45;cursor:not-allowed}:focus-visible{outline:3px solid #6ba38d;outline-offset:3px}input[type=range]{width:100%;accent-color:var(--accent);cursor:pointer;margin:10px 0}.range-labels{display:flex;justify-content:space-between;color:var(--muted);font-size:12px}.toolbar{position:sticky;bottom:12px;z-index:2;margin-top:20px;padding:18px 24px;background:rgba(255,255,255,.97);border:1px solid var(--line);border-radius:16px;box-shadow:0 8px 30px #203c2910}.buttons{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.status{margin-left:auto;font-size:13px;color:var(--muted)}.progress-label{display:flex;justify-content:space-between;margin-top:14px;font-size:12px;color:var(--muted)}footer{font-size:12px;color:var(--muted);padding:20px 4px 0}#notice{font-size:13px;margin-top:12px}output{font-variant-numeric:tabular-nums;color:var(--accent)}@media(max-width:720px){main{padding:28px 16px 20px}.workspace{grid-template-columns:1fr}.card{padding:18px}textarea{height:220px}.reader{height:260px}.settings{grid-template-columns:1fr;gap:18px}.toolbar{padding:14px;bottom:6px}.buttons{gap:6px}button.control{padding:10px 12px}.status{width:100%;margin:3px 0 0}.card-title{align-items:baseline}}
+.library{margin-bottom:20px}.library-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}.library input{width:100%;min-width:0;border:1px solid var(--line);border-radius:9px;padding:10px;font:inherit;color:var(--ink)}.library .voice-row{flex-wrap:wrap}.library .voice-row select,.library .voice-row input{flex:1;min-width:150px}.library details{margin-top:12px;font-size:13px;color:var(--muted)}.library summary{cursor:pointer}.library li{margin:8px 0}.library a{color:var(--accent)}.library code{overflow-wrap:anywhere}#library-message{font-size:13px;margin-top:12px}.library .card-title{flex-wrap:wrap}@media(max-width:720px){.library-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<main>
+  <header><div class="brand">Readwell</div><h1>Give your words a voice.</h1><p>Paste English text, choose a voice, and settle into listening.</p></header>
+  <section class="card library" aria-labelledby="library-title">
+    <div class="card-title"><h2 id="library-title">Your Drive library</h2><div class="buttons"><button class="control" id="google-connect" disabled>Connect Google Drive</button><button class="control" id="google-disconnect" hidden>Sign out</button></div></div>
+    <div class="library-grid">
+      <div><label class="field-label" for="saved-texts">Saved texts</label><div class="voice-row"><select id="saved-texts" disabled><option value="">Connect to see your texts</option></select><button class="control" id="open-text" disabled>Open</button><button class="control" id="refresh-library" disabled>Refresh</button></div></div>
+      <div><label class="field-label" for="text-name">Text name</label><div class="voice-row"><input id="text-name" type="text" maxlength="160" placeholder="e.g. Chapter one"><button class="control" id="save-text" disabled>Save new text</button></div></div>
+    </div>
+    <p id="library-message" role="status">Google Drive setup is required once before connecting.</p>
+    <p class="hint">Save a named copy to your Readwell folder, then connect with the same Google account on your phone. Texts are stored in Drive, never in GitHub. Keep the folder private.</p>
+    <details id="drive-setup"><summary>One-time Google Drive setup</summary>
+      <ol>
+        <li>Publish this file as <code>index.html</code> using GitHub → repository Settings → Pages → Deploy from a branch → main / root. Open the resulting HTTPS website.</li>
+        <li>In <a href="https://console.cloud.google.com/apis/library/drive.googleapis.com" target="_blank" rel="noopener noreferrer">Google Cloud Console</a>, create or select a project and enable <strong>Google Drive API</strong>.</li>
+        <li>In Google Auth Platform, configure Branding and Audience (External). While in Testing, add your own Google email under Test users. In Data Access, add <code>https://www.googleapis.com/auth/drive.file</code>.</li>
+        <li>Create an OAuth client of type <strong>Web application</strong>. Add this exact Authorized JavaScript origin: <code id="google-origin"></code>. Use only the origin, with no repository path. This popup flow needs no redirect URI.</li>
+        <li>Copy the client ID ending in <code>.apps.googleusercontent.com</code> into the <code>google-client-id</code> meta tag at the top of this file and publish the updated file. This ID is public; never add a client secret. Both devices must use the same client ID.</li>
+      </ol>
+      <label class="field-label" for="google-client-id">Or enter the public client ID on this device</label><div class="voice-row"><input id="google-client-id" type="text" autocomplete="off" spellcheck="false" placeholder="123456-example.apps.googleusercontent.com"><button class="control" id="apply-google-id">Use client ID</button></div>
+      <p>Then click Connect Google Drive and allow access. The app creates its own Readwell folder; you do not need to create or share a folder. Open the same website and sign in on your phone. Use Refresh to fetch recent saves.</p>
+      <p>If Google reports an origin mismatch, check the exact origin above. If access is blocked in Testing, check the test-user email. Allow sign-in popups and use your normal browser rather than an embedded browser. New Google settings can take time to apply.</p>
+      <p>Connections expire periodically; reconnect when prompted. Reloading the page also requires reconnecting. Your saved texts remain in Drive. Unsaved edits are not backed up. Online voices may send text to their speech provider; phone voices and background playback depend on the browser.</p>
+      <p><a href="https://developers.google.com/identity/oauth2/web/guides/get-google-api-clientid" target="_blank" rel="noopener noreferrer">Google setup documentation</a> · <a href="https://developers.google.com/workspace/drive/api/guides/api-specific-auth" target="_blank" rel="noopener noreferrer">Drive permissions</a></p>
+    </details>
+  </section>
+  <div class="workspace">
+    <section class="card"><div class="card-title"><label class="title" for="text">Your text</label><span class="hint">English text</span></div><textarea id="text" placeholder="Paste or type something you’d like to hear…" spellcheck="false"></textarea><p class="hint">Edit anytime. Playback stops when your text changes.</p></section>
+    <section class="card" aria-labelledby="reading-title"><div class="card-title"><h2 id="reading-title">Follow along</h2><span class="hint">Click a sentence to listen</span></div><div id="reader" class="reader" tabindex="0" aria-label="Reading pane"><div class="empty">Your sentences will appear here.<br>Let’s start with a few words.</div></div><p class="hint" id="count">0 sentences</p></section>
+  </div>
+  <section class="card settings" aria-label="Voice settings">
+    <div><label class="field-label" for="voice">English voice</label><div class="voice-row"><select id="voice" disabled><option>Loading English voices…</option></select><button class="control" id="preview" disabled>Preview</button></div><div id="notice" role="status">Waiting for your browser’s voices.</div></div>
+    <div><label class="field-label" for="speed">Reading speed <output id="speed-value" for="speed">1.00×</output></label><input id="speed" type="range" min="0.5" max="2" step="0.05" value="1"><div class="range-labels"><span>0.5× · Slower</span><span>2× · Faster</span></div></div>
+  </section>
+  <section class="toolbar" aria-label="Playback controls">
+    <div class="buttons"><button class="control primary" id="play" disabled>Play</button><button class="control" id="stop" disabled>Stop</button><button class="control" id="restart" disabled>Restart</button><button class="control" id="previous" aria-label="Previous sentence" disabled>← Previous</button><button class="control" id="next" aria-label="Next sentence" disabled>Next →</button><span class="status" id="status" role="status">Ready when you are</span></div>
+    <div class="progress-label"><label for="progress">Text progress · by sentence</label><span id="position">0 / 0</span></div><input id="progress" type="range" min="0" max="0" value="0" step="1" aria-valuetext="No sentences" disabled>
+  </section>
+  <footer>Voice quality and offline availability depend on your browser and device. Some voices use an online speech service. Named texts are saved to Google Drive only when you choose Save new text. Voice, speed, and optional public client ID preferences stay in this browser; Google access tokens stay in memory.</footer>
+</main>
+<script>
+(() => {
+  'use strict';
+  const $ = id => document.getElementById(id);
+  const synth = window.speechSynthesis;
+  const supported = !!synth && typeof window.SpeechSynthesisUtterance === 'function';
+  let voices = [], sentences = [], nodes = [], current = 0, chunk = 0, chunks = [];
+  let mode = 'idle', generation = 0, timer, editTimer, utterance = null, restartOnResume = false;
+  let source = '', highlighted = -1, preferredVoice = '';
+  let primer = null, audioContext = null;
+  try {
+    // New preference key applies the requested US-online default to existing installs.
+    preferredVoice = localStorage.getItem('readwell.voice.us-online') || '';
+    const saved = Number(localStorage.getItem('readwell.speed'));
+    if (saved >= .5 && saved <= 2) $('speed').value = saved;
+  } catch (_) { /* Storage can be unavailable for local files. */ }
+  const rate = () => Number($('speed').value);
+  const selectedVoice = () => voices.find(v => v.voiceURI === $('voice').value);
+  function save(key, value) { try { localStorage.setItem('readwell.' + key, value); } catch (_) {} }
+  function releaseAudio() {
+    if (audioContext) { audioContext.close().catch(() => {}); audioContext = null; }
+  }
+  function warmAudio() {
+    // Keep an output stream open across sentence gaps. No sound is added.
+    // This is optional: speech still works if Web Audio is unavailable/blocked.
+    try {
+      if (audioContext) return 180;
+      const Audio = window.AudioContext || window.webkitAudioContext;
+      if (!Audio) return 180;
+      audioContext = new Audio();
+      const silence = audioContext.createBufferSource();
+      silence.buffer = audioContext.createBuffer(1, 128, audioContext.sampleRate);
+      silence.loop = true;
+      silence.connect(audioContext.destination);
+      silence.start();
+      audioContext.resume().catch(() => {});
+      return 500;
+    } catch (_) { releaseAudio(); return 180; }
+  }
+  function cancel(keepAudio = false) {
+    generation++;
+    clearTimeout(timer);
+    if (supported) {
+      if (utterance || synth.speaking || synth.pending) synth.cancel();
+      if (synth.paused) synth.resume();
+    }
+    utterance = null;
+    primer = null;
+    restartOnResume = false;
+    if (!keepAudio) releaseAudio();
+  }
+  function cleanForReading(text) {
+    const linkLabel = label => /^(?:https?:\/\/|www\.)/i.test(label.trim()) ? 'link' : `${label} (link)`;
+    // Replace destinations before sentence splitting so dots inside URLs are silent.
+    const references = new Set();
+    text = text.replace(/^\s{0,3}\[([^\]]+)\]:\s*\S+.*$/gm, (_, id) => {
+      references.add(id.trim().toLowerCase()); return '';
+    });
+    text = text
+      .replace(/!?\[([^\]\n]*)\]\(\s*(?:<[^>\n]+>|[^()\n]|\([^()\n]*\))*\)/g, (_, label) => linkLabel(label))
+      .replace(/\[([^\]\n]+)\](?:\[([^\]\n]*)\])?/g, (match, label, id) => references.has((id || label).trim().toLowerCase()) ? linkLabel(label) : match)
+      .replace(/<(?:https?:\/\/|www\.|mailto:)[^>\n]+>/gi, 'link')
+      .replace(/\b(?:(?:https?:\/\/|www\.|mailto:)[^\s<>|]+|(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+(?:com|org|net|edu|gov|io|co|dev|app|ai|info|uk|fr)\b(?:[/?#][^\s<>|]*)?)/gi,
+        url => 'link' + (url.match(/[.,;:!?\)\]]+$/)?.[0] || ''));
+    return text.replace(/\r\n?/g, '\n').split('\n').map(line => {
+      // Skip fences, horizontal rules, and Markdown table alignment rows.
+      if (/^\s*(?:`{3,}|~{3,})/.test(line) || /^[\s|:*_`~=#>\-–—•]+$/.test(line)) return '';
+      return line
+        .replace(/\|?\s*:?-{2,}:?\s*(?:\|\s*:?-{2,}:?\s*)+\|?/g, ' ')
+        .replace(/^\s*(?:>\s*)+/, '')
+        .replace(/^\s*#{1,6}\s*/, '')
+        .replace(/^\s*[-+*•]\s+/, '')
+        .replace(/\*+|`+|~{2,}/g, '')
+        .replace(/\b_+|_+\b/g, ' ')
+        .replace(/^\s*\|+|\|+\s*$/g, '')
+        .replace(/\|+/g, ', ')
+        .replace(/[–—]+/g, ', ')
+        .replace(/-{2,}/g, ' ')
+        .replace(/(^|\s)-(?=\s|$)/g, '$1')
+        .replace(/\s+#+\s*$/, '')
+        .replace(/\s+/g, ' ').trim();
+    }).filter(line => /[\p{L}\p{N}]/u.test(line)).join('\n');
+  }
+  function split(text) {
+    if (typeof Intl !== 'undefined' && Intl.Segmenter) {
+      try { return Array.from(new Intl.Segmenter('en', {granularity:'sentence'}).segment(text), s => s.segment.trim()).filter(Boolean); } catch (_) {}
+    }
+    return (text.match(/[^.!?]+(?:[.!?]+["'’”\])}]*|$)|[.!?]+/g) || [text]).map(s => s.trim()).filter(Boolean);
+  }
+  // Short utterances also keep very long, unpunctuated sentences manageable.
+  function splitChunks(text) {
+    const result = [];
+    while (text.length > 220) {
+      let cut = text.lastIndexOf(' ', 220);
+      if (cut < 80) cut = 220;
+      if (/[\uD800-\uDBFF]/.test(text[cut - 1])) cut--;
+      result.push(text.slice(0, cut)); text = text.slice(cut).trimStart();
+    }
+    if (text) result.push(text);
+    return result;
+  }
+  function update(scroll = false) {
+    const available = supported && voices.length > 0 && sentences.length > 0;
+    $('play').disabled = !available;
+    $('play').textContent = mode === 'playing' ? 'Pause' : mode === 'paused' ? 'Resume' : 'Play';
+    $('stop').disabled = !['playing','paused','preview'].includes(mode);
+    $('restart').disabled = !available;
+    $('previous').disabled = !available || current === 0;
+    $('next').disabled = !available || current >= sentences.length - 1;
+    $('progress').disabled = !available;
+    $('progress').max = Math.max(0, sentences.length - 1);
+    $('progress').value = current;
+    $('position').textContent = sentences.length ? `${current + 1} / ${sentences.length}` : '0 / 0';
+    $('progress').setAttribute('aria-valuetext', sentences.length ? `Sentence ${current + 1} of ${sentences.length}` : 'No sentences');
+    if (highlighted !== current && nodes[highlighted]) nodes[highlighted].removeAttribute('aria-current');
+    if (nodes[current]) {
+      nodes[current].setAttribute('aria-current', 'true');
+      if (scroll) {
+        const pane = $('reader'), node = nodes[current];
+        const p = pane.getBoundingClientRect(), n = node.getBoundingClientRect();
+        if (n.top < p.top || n.bottom > p.bottom) pane.scrollTop += n.top - p.top - 20;
+      }
+    }
+    highlighted = current;
+  }
+  function status(message) { $('status').textContent = message; }
+  function syncText() {
+    clearTimeout(editTimer);
+    if (source === $('text').value) return;
+    source = $('text').value;
+    sentences = split(cleanForReading(source)).filter(s => /[\p{L}\p{N}]/u.test(s)); current = 0; highlighted = -1;
+    const fragment = document.createDocumentFragment();
+    nodes = sentences.map((sentence, index) => {
+      const node = document.createElement('button');
+      node.className = 'sentence'; node.type = 'button'; node.textContent = sentence;
+      node.dataset.index = index;
+      fragment.append(node, document.createTextNode(' ')); return node;
+    });
+    $('reader').replaceChildren(fragment);
+    if (!sentences.length) {
+      const empty = document.createElement('div'); empty.className = 'empty';
+      empty.textContent = 'Your sentences will appear here. Paste some English text to begin.';
+      $('reader').append(empty);
+    }
+    $('count').textContent = `${sentences.length.toLocaleString()} sentence${sentences.length === 1 ? '' : 's'}`;
+    update();
+  }
+  function createSpeech(text, voice) {
+    const speech = new SpeechSynthesisUtterance(text);
+    speech.voice = voice; speech.lang = voice.lang; speech.rate = rate();
+    return speech;
+  }
+  function queueSpeech(speech, token) {
+    // A real, muted utterance initializes the selected engine. Empty strings
+    // and punctuation can be discarded by Chrome without warming it up.
+    const warmup = createSpeech('Ready.', speech.voice);
+    warmup.volume = 0;
+    warmup.rate = 1;
+    primer = warmup;
+    warmup.onend = () => {
+      if (token === generation && primer === warmup) primer = null;
+    };
+    warmup.onerror = event => {
+      if (token === generation && primer === warmup) speech.onerror(event);
+    };
+    // Queue both together: Chrome advances without a JS timer or cancellation
+    // between the muted warm-up and the unmodified, audible sentence.
+    synth.speak(warmup);
+    if (token === generation && utterance === speech) synth.speak(speech);
+  }
+  function speakChunk(token) {
+    if (token !== generation || mode !== 'playing') return;
+    const voice = selectedVoice();
+    if (!voice) { cancel(); mode = 'idle'; status('Choose an English voice to continue.'); update(); return; }
+    const speech = createSpeech(chunks[chunk], voice);
+    utterance = speech;
+    speech.onend = () => {
+      if (token !== generation || utterance !== speech) return;
+      utterance = null;
+      if (++chunk >= chunks.length) {
+        if (current + 1 >= sentences.length) { mode = 'ended'; releaseAudio(); status('Finished reading'); update(); return; }
+        current++; chunks = splitChunks(sentences[current]); chunk = 0; update(true);
+      }
+      if (mode === 'playing') timer = setTimeout(() => speakChunk(token), 40);
+    };
+    speech.onerror = event => {
+      if (token !== generation || utterance !== speech) return;
+      cancel(); mode = 'idle'; status(`Speech stopped (${event.error || 'voice unavailable'}). Try another voice or Play.`); update();
+    };
+    queueSpeech(speech, token);
+  }
+  function start(index = current) {
+    syncText();
+    if (!supported || !voices.length || !sentences.length) return;
+    cancel(true); current = Math.max(0, Math.min(index, sentences.length - 1));
+    const delay = warmAudio();
+    chunks = splitChunks(sentences[current]); chunk = 0; mode = 'playing';
+    status('Reading'); update(true);
+    const token = generation;
+    // Let a cancelled engine settle before submitting the replacement utterance.
+    timer = setTimeout(() => speakChunk(token), delay);
+  }
+  $('play').onclick = () => {
+    if (mode === 'playing') { mode = 'paused'; synth.pause(); status('Paused'); update(); }
+    else if (mode === 'paused') {
+      if (restartOnResume) { start(); return; }
+      mode = 'playing'; synth.resume();
+      if (!utterance) { clearTimeout(timer); speakChunk(generation); }
+      status('Reading'); update();
+    } else start(mode === 'ended' ? 0 : current);
+  };
+  $('stop').onclick = () => { cancel(); mode = 'idle'; status('Stopped'); update(); };
+  $('restart').onclick = () => start(0);
+  $('previous').onclick = () => start(current - 1);
+  $('next').onclick = () => start(current + 1);
+  $('reader').onclick = event => { const node = event.target.closest('[data-index]'); if (node) start(Number(node.dataset.index)); };
+  $('progress').oninput = () => { cancel(); mode = 'idle'; current = Number($('progress').value); status('Position selected'); update(true); };
+  $('progress').onchange = () => start(Number($('progress').value));
+  $('text').oninput = () => {
+    cancel(); mode = 'idle'; status('Text changed · ready to read');
+    // Invalidate old sentences immediately; rebuild after a short typing pause.
+    source = null; sentences = []; nodes = []; current = 0; $('reader').replaceChildren(); $('count').textContent = 'Updating sentences…'; update();
+    clearTimeout(editTimer); editTimer = setTimeout(syncText, 180);
+  };
+  function settingsChanged() {
+    if (mode === 'playing') start();
+    else if (mode === 'paused') { cancel(true); restartOnResume = true; }
+    else if (mode === 'preview') preview();
+  }
+  $('speed-value').textContent = rate().toFixed(2) + '×';
+  $('speed').oninput = () => { $('speed-value').textContent = rate().toFixed(2) + '×'; save('speed', rate()); settingsChanged(); };
+  $('voice').onchange = () => { preferredVoice = $('voice').value; save('voice.us-online', preferredVoice); settingsChanged(); };
+  function preview() {
+    const voice = selectedVoice(); if (!voice) return;
+    cancel(true); mode = 'preview'; status('Previewing voice'); update();
+    const delay = warmAudio();
+    const token = generation;
+    timer = setTimeout(() => {
+      if (token !== generation) return;
+      const speech = createSpeech('Hello. This is your reading voice. Take a moment to listen at your own pace.', voice);
+      utterance = speech;
+      const finish = message => { if (token !== generation) return; cancel(); mode = 'idle'; status(message); update(); };
+      speech.onend = () => finish('Preview finished');
+      speech.onerror = () => finish('Preview unavailable. Try another voice.');
+      queueSpeech(speech, token);
+    }, delay);
+  }
+  $('preview').onclick = preview;
+  function loadVoices() {
+    const previous = $('voice').value;
+    voices = synth.getVoices().filter(v => /^en(?:[-_]|$)/i.test(v.lang));
+    // Web Speech has no gender field. Recognize explicit labels and known names;
+    // otherwise keep the voice eligible without guessing its gender.
+    const male = v => /\bmale\b/i.test(v.name) || /\bMicrosoft\b.*\b(Guy|Andrew|Brian|Christopher|Eric)(?:Neural|MultilingualNeural|\b)/i.test(v.name);
+    const score = v => {
+      const us = /^en[-_]US$/i.test(v.lang), online = !v.localService;
+      return (us && online ? 400 + (male(v) ? 100 : 0) : us ? 200 : online ? 100 : 0)
+        + (/natural|neural|enhanced|premium/i.test(v.name) ? 20 : 0) + (v.default ? 5 : 0);
+    };
+    voices.sort((a,b) => score(b) - score(a) || a.name.localeCompare(b.name));
+    $('voice').replaceChildren();
+    for (const voice of voices) {
+      const option = document.createElement('option'); option.value = voice.voiceURI;
+      option.textContent = `${voice.name} · ${voice.lang}${voice.localService ? ' · device' : ' · online'}`;
+      $('voice').append(option);
+    }
+    $('voice').disabled = $('preview').disabled = !voices.length;
+    if (voices.length) {
+      // Late-arriving online voices improve the default, but never interrupt speech.
+      const activeVoice = ['playing','paused','preview'].includes(mode) ? previous : '';
+      $('voice').value = [preferredVoice, activeVoice, voices[0].voiceURI].find(uri => voices.some(v => v.voiceURI === uri));
+      $('notice').textContent = voices.some(v => /^en[-_]US$/i.test(v.lang) && !v.localService)
+        ? 'Default: online American English, preferring a recognized male voice. Your selection is remembered.'
+        : 'No online American voice is exposed by this browser yet. Using an available English voice.';
+    } else {
+      const option = document.createElement('option'); option.textContent = 'No English voices available'; $('voice').append(option);
+      $('notice').textContent = 'No English voices yet. Enable an English speech voice in your device settings, then reopen this page.';
+    }
+    if (previous !== $('voice').value) settingsChanged();
+    update();
+  }
+  if (supported) {
+    synth.addEventListener('voiceschanged', loadVoices);
+    loadVoices(); setTimeout(loadVoices, 500); setTimeout(loadVoices, 2000);
+  } else {
+    $('voice').options[0].textContent = 'Speech synthesis unavailable';
+    $('notice').textContent = 'This browser does not support speech synthesis. Open this file in a browser with Web Speech support.';
+    $('speed').disabled = true; status('Speech synthesis unavailable');
+  }
+  window.addEventListener('pagehide', () => cancel());
+
+  // Private, cross-device storage. Only Google Identity Services is external;
+  // Drive requests go directly to Google, never through GitHub or a backend.
+  const DRIVE_SCOPE = 'https://www.googleapis.com/auth/drive.file';
+  const DRIVE_API = 'https://www.googleapis.com/drive/v3/';
+  let clientId = document.querySelector('meta[name="google-client-id"]').content.trim();
+  if (!clientId) { try { clientId = localStorage.getItem('readwell.googleClientId') || ''; } catch (_) {} }
+  let accessToken = '', expiresAt = 0, session = 0, busy = false, authorizing = false;
+  let expiryTimer, googleScript, folderId = '', libraryFiles = [], savedDraft = '', editRevision = 0;
+  const requests = new Set();
+  const draft = () => JSON.stringify([$('text-name').value, $('text').value]);
+  const unsaved = () => !!$('text').value.trim() && draft() !== savedDraft;
+  const connected = () => !!accessToken && Date.now() < expiresAt;
+  const libraryMessage = message => { $('library-message').textContent = message; };
+  function libraryUI() {
+    const ready = connected() && !busy;
+    $('google-connect').disabled = busy || authorizing || !window.google?.accounts?.oauth2 || !clientId;
+    $('google-connect').hidden = connected();
+    $('google-disconnect').hidden = !accessToken && !authorizing;
+    $('save-text').disabled = !ready || !$('text').value.trim() || !$('text-name').value.trim();
+    $('saved-texts').disabled = !ready || !libraryFiles.length;
+    $('open-text').disabled = !ready || !$('saved-texts').value;
+    $('refresh-library').disabled = !ready;
+    $('apply-google-id').disabled = busy || authorizing || !!accessToken;
+    $('google-client-id').disabled = busy || authorizing || !!accessToken;
+  }
+  function clearConnection() {
+    session++; accessToken = ''; expiresAt = 0; folderId = ''; libraryFiles = [];
+    clearTimeout(expiryTimer); authorizing = false; busy = false;
+    for (const request of requests) request.abort();
+    requests.clear();
+    const option = document.createElement('option'); option.value = ''; option.textContent = 'Connect to see your texts';
+    $('saved-texts').replaceChildren(option); libraryUI();
+  }
+  async function drive(path, options = {}, raw = false) {
+    if (!connected()) { clearConnection(); throw new Error('Connection expired. Connect Google Drive again; your unsaved text is still here.'); }
+    const requestSession = session, controller = new AbortController();
+    requests.add(controller);
+    const timeout = setTimeout(() => controller.abort(), 30000);
+    try {
+      const response = await fetch(path.startsWith('https://www.googleapis.com/') ? path : DRIVE_API + path, {
+        ...options, headers: {...options.headers, Authorization: 'Bearer ' + accessToken}, signal: controller.signal
+      });
+      if (requestSession !== session) throw new Error('Connection changed. Please try again.');
+      if (!response.ok) {
+        if (response.status === 401) { clearConnection(); throw new Error('Connection expired. Connect Google Drive again; your text has been kept.'); }
+        if (response.status === 403) throw new Error('Drive denied access. Check that Drive API is enabled and allow the requested permission when reconnecting.');
+        if (response.status === 404) throw new Error('This Drive item is no longer available. Refresh your library.');
+        if (response.status === 429) throw new Error('Google is receiving too many requests. Try again shortly.');
+        throw new Error('Drive request failed (' + response.status + '). Try again when your connection is stable.');
+      }
+      const result = await (raw ? response.text() : response.json());
+      if (requestSession !== session) throw new Error('Connection changed. Please try again.');
+      return result;
+    } catch (error) {
+      if (error.name === 'AbortError') throw new Error('Drive request timed out or was cancelled. Check your connection.');
+      if (error instanceof TypeError) throw new Error('Could not reach Google Drive. Check your internet connection.');
+      throw error;
+    } finally { clearTimeout(timeout); requests.delete(controller); }
+  }
+  async function listDrive(query, orderBy = 'modifiedTime desc') {
+    let pageToken = '', files = [];
+    do {
+      const params = new URLSearchParams({q: query, spaces: 'drive', pageSize: '100', orderBy,
+        fields: 'nextPageToken,files(id,name,modifiedTime,size,shared)', ...(pageToken ? {pageToken} : {})});
+      const page = await drive('files?' + params);
+      files.push(...(page.files || [])); pageToken = page.nextPageToken || '';
+    } while (pageToken);
+    return files;
+  }
+  async function refreshLibrary(selectId = $('saved-texts').value) {
+    libraryFiles = await listDrive("trashed = false and 'me' in owners and mimeType = 'text/plain' and appProperties has { key='readwell' and value='text-v1' }");
+    const options = libraryFiles.map(file => {
+      const option = document.createElement('option'); option.value = file.id;
+      option.textContent = file.name.replace(/\.txt$/i, '') + ' · ' + new Date(file.modifiedTime).toLocaleString();
+      return option;
+    });
+    if (!options.length) { const option = document.createElement('option'); option.value = ''; option.textContent = 'No saved texts yet'; options.push(option); }
+    $('saved-texts').replaceChildren(...options);
+    if (libraryFiles.some(file => file.id === selectId)) $('saved-texts').value = selectId;
+    libraryMessage(libraryFiles.length ? `${libraryFiles.length} saved text${libraryFiles.length === 1 ? '' : 's'} in your Google Drive.` : 'Connected. Paste text, give it a name, and save your first text.');
+  }
+  async function runLibrary(task) {
+    if (busy) return;
+    const taskSession = session; busy = true; libraryUI();
+    try { await task(); }
+    catch (error) { if (taskSession === session || !accessToken) libraryMessage(error.message); }
+    finally { if (taskSession === session || !accessToken) { busy = false; libraryUI(); } }
+  }
+  async function ensureFolder() {
+    // Check sharing each time so a folder shared manually is never reused for new private saves.
+    const folders = await listDrive("trashed = false and 'me' in owners and mimeType = 'application/vnd.google-apps.folder' and appProperties has { key='readwell' and value='folder-v1' }", 'createdTime');
+    const privateFolder = folders.find(folder => !folder.shared);
+    if (privateFolder) return privateFolder.id;
+    const folder = await drive('files?fields=id', {method:'POST', headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({name:'Readwell', mimeType:'application/vnd.google-apps.folder', parents:['root'], appProperties:{readwell:'folder-v1'}})});
+    return folder.id;
+  }
+  $('save-text').onclick = () => runLibrary(async () => {
+    const title = $('text-name').value.trim(), text = $('text').value, snapshot = draft();
+    if (!title || !text.trim()) throw new Error('Give your text a name and paste some text first.');
+    if (new Blob([text]).size > 4 * 1024 * 1024) throw new Error('This text exceeds the 4 MB save limit. Save it in smaller parts.');
+    libraryMessage('Saving a new copy to Google Drive…');
+    folderId = await ensureFolder();
+    const boundary = 'readwell_' + crypto.randomUUID().replace(/-/g, '');
+    const metadata = {name:title.replace(/\.txt$/i, '') + '.txt', mimeType:'text/plain', parents:[folderId], appProperties:{readwell:'text-v1'}};
+    const body = new Blob(['--' + boundary + '\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n', JSON.stringify(metadata),
+      '\r\n--' + boundary + '\r\nContent-Type: text/plain; charset=UTF-8\r\n\r\n', text, '\r\n--' + boundary + '--\r\n']);
+    let file;
+    try {
+      file = await drive('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id', {
+        method:'POST', headers:{'Content-Type':'multipart/related; boundary=' + boundary}, body});
+    } catch (error) { throw new Error(error.message + ' Save was not confirmed. Refresh your library before trying to save again.'); }
+    savedDraft = snapshot;
+    try { await refreshLibrary(file.id); libraryMessage('Saved “' + title + '” to Drive. Open it on your phone using the same Google account.'); }
+    catch (_) { libraryMessage('Saved to Drive, but the list could not refresh. Reconnect or press Refresh to see it.'); }
+  });
+  $('open-text').onclick = () => runLibrary(async () => {
+    const file = libraryFiles.find(file => file.id === $('saved-texts').value);
+    if (!file) return;
+    if (unsaved() && !window.confirm('Replace your unsaved text with this saved text?')) return;
+    const revision = editRevision;
+    if (Number(file.size) > 4 * 1024 * 1024) throw new Error('This saved file is too large to open (4 MB maximum).');
+    libraryMessage('Opening saved text…');
+    const text = await drive('files/' + encodeURIComponent(file.id) + '?alt=media', {}, true);
+    if (revision !== editRevision) throw new Error('Your text changed while opening. Open the saved text again when you are ready.');
+    $('text').value = text; $('text-name').value = file.name.replace(/\.txt$/i, '');
+    $('text').dispatchEvent(new Event('input')); syncText(); savedDraft = draft();
+    libraryMessage('Opened “' + $('text-name').value + '”. Press Play to listen.');
+  });
+  $('refresh-library').onclick = () => runLibrary(() => refreshLibrary());
+  $('saved-texts').onchange = libraryUI;
+  for (const id of ['text','text-name']) $(id).addEventListener('input', () => { editRevision++; libraryUI(); });
+  $('google-connect').onclick = () => {
+    if (!/^https?:$/.test(location.protocol)) { libraryMessage('Google sign-in requires your hosted HTTPS website or localhost. It cannot run from a file opened directly.'); return; }
+    if (!window.google?.accounts?.oauth2) { libraryMessage('Google sign-in is still loading. Check your connection and try again.'); return; }
+    clearConnection(); const authSession = session;
+    authorizing = true; libraryUI(); libraryMessage('Choose your Google account in the sign-in window…');
+    const authFailure = message => { if (authSession === session) { authorizing = false; libraryMessage(message); libraryUI(); } };
+    try {
+      const client = google.accounts.oauth2.initTokenClient({client_id:clientId, scope:DRIVE_SCOPE, include_granted_scopes:false,
+        callback:response => {
+          if (authSession !== session) return;
+          authorizing = false;
+          if (response.error || !response.access_token) { authFailure('Google sign-in was not completed. Connect again when ready.'); return; }
+          if (!google.accounts.oauth2.hasGrantedAllScopes(response, DRIVE_SCOPE)) { authFailure('Drive permission was not granted. Reconnect and allow the requested access.'); return; }
+          accessToken = response.access_token; expiresAt = Date.now() + Math.max(1, Number(response.expires_in) - 60) * 1000;
+          expiryTimer = setTimeout(() => { clearConnection(); libraryMessage('Google connection expired. Reconnect to access saved texts; your current text is still here.'); }, Math.max(0, expiresAt - Date.now()));
+          libraryUI(); runLibrary(() => refreshLibrary());
+        }, error_callback:() => authFailure('The Google sign-in window was closed or blocked. Allow popups, then connect again.')});
+      client.requestAccessToken({prompt:'select_account'});
+    } catch (_) { authFailure('Google sign-in could not start. Check the client ID and one-time setup.'); }
+  };
+  $('google-disconnect').onclick = () => {
+    if (unsaved() && !window.confirm('Sign out and clear your unsaved text from this screen?')) return;
+    clearConnection(); $('text').value = ''; $('text-name').value = ''; $('text').dispatchEvent(new Event('input')); syncText(); savedDraft = draft();
+    libraryMessage('Signed out of this app. Your saved texts remain in Google Drive.');
+  };
+  function loadGoogle() {
+    if (googleScript || window.google?.accounts?.oauth2) { libraryUI(); return; }
+    googleScript = document.createElement('script'); googleScript.src = 'https://accounts.google.com/gsi/client'; googleScript.async = true;
+    googleScript.onload = () => { libraryMessage('Ready. Connect Google Drive to access your library.'); libraryUI(); };
+    googleScript.onerror = () => { googleScript.remove(); googleScript = null; libraryMessage('Google sign-in could not load. Check your internet connection, then use the client ID button to retry.'); };
+    document.head.append(googleScript);
+  }
+  $('apply-google-id').onclick = () => {
+    const value = $('google-client-id').value.trim();
+    if (!/^[\w-]+\.apps\.googleusercontent\.com$/.test(value)) { libraryMessage('Enter a Google OAuth Web client ID ending in .apps.googleusercontent.com, not a client secret.'); return; }
+    clientId = value; save('googleClientId', value); loadGoogle(); libraryMessage('Client ID set. Once Google finishes loading, click Connect Google Drive.');
+  };
+  $('google-client-id').value = clientId;
+  $('google-origin').textContent = /^https?:$/.test(location.protocol) ? location.origin : 'https://YOUR-USERNAME.github.io (open your hosted site to see the exact origin)';
+  if (clientId) loadGoogle(); else $('drive-setup').open = true;
+  libraryUI();
+  window.addEventListener('beforeunload', event => { if (unsaved()) { event.preventDefault(); event.returnValue = ''; } });
+  window.addEventListener('pagehide', clearConnection);
+})();
+</script>
+</body>
+</html>
